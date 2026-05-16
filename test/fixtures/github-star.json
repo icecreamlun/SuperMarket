@@ -1,0 +1,13 @@
+{
+	"action": "created",
+	"starred_at": "2026-05-16T10:00:00Z",
+	"repository": {
+		"full_name": "your-org/your-repo",
+		"html_url": "https://github.com/your-org/your-repo"
+	},
+	"sender": {
+		"login": "torvalds",
+		"html_url": "https://github.com/torvalds",
+		"type": "User"
+	}
+}

@@ -1,0 +1,18 @@
+{
+	"action": "opened",
+	"repository": {
+		"full_name": "your-org/your-repo",
+		"html_url": "https://github.com/your-org/your-repo"
+	},
+	"sender": {
+		"login": "octocat",
+		"html_url": "https://github.com/octocat",
+		"type": "User"
+	},
+	"issue": {
+		"number": 42,
+		"title": "Would love a Stripe-native integration",
+		"body": "Hey team — we're rolling this out across our platform team at $WORK and would love a first-class Stripe integration. Happy to hop on a call to share use cases.",
+		"html_url": "https://github.com/your-org/your-repo/issues/42"
+	}
+}
