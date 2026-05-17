@@ -19,11 +19,20 @@ import {
 	fetchTweetsForPlan,
 	tweetToInboundEvent,
 } from "./x";
+import { processEmailReceived } from "./handler/email";
 
 const worker = new Worker();
 export default worker;
 
 const marketSignalsDB = declareMarketSignalsDatabase(worker);
+
+worker.webhook("onEmailReceived", {
+	title: "Email Received",
+	description: "Receives email events from the user's inbox, normalizes them.",
+	execute: async (events, { notion }) => {
+		await Promise.all(events.map((event) => processEmailReceived(event, notion)));
+	},
+});
 
 worker.webhook("onGithubEvent", {
 	title: "GitHub Inbound — Triage Sidekick",
@@ -53,9 +62,9 @@ worker.webhook("onGithubEvent", {
 
 			const enrichment = inbound.contact.handle
 				? await enrichGitHubActor(inbound.contact.handle).catch((err) => {
-						console.warn("GitHub enrichment failed:", err);
-						return null;
-					})
+					console.warn("GitHub enrichment failed:", err);
+					return null;
+				})
 				: null;
 			inbound.enrichment = enrichment ?? undefined;
 			if (enrichment) {
