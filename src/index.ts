@@ -24,6 +24,15 @@ import { processEmailReceived } from "./handler/email";
 const worker = new Worker();
 export default worker;
 
+worker.oauth("gmailAuth", {
+	name: "gmail-inbox",
+	authorizationEndpoint: "https://accounts.google.com/o/oauth2/v2/auth",
+	tokenEndpoint: "https://oauth2.googleapis.com/token",
+	scope: "https://www.googleapis.com/auth/gmail.readonly openid email",
+	clientId: process.env.GOOGLE_CLIENT_ID ?? "",
+	clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
+});
+
 const marketSignalsDB = declareMarketSignalsDatabase(worker);
 
 worker.webhook("onEmailReceived", {
