@@ -91,7 +91,8 @@ export interface InboxRow {
 	title: string;
 	type: string;
 	priority: string;
-	confidence: number | null;
+	confidence: string;
+	status: string;
 	source: string;
 	owner: string;
 	company: string;
@@ -136,7 +137,8 @@ export async function queryInbox(
 		title: textOf(page.properties.Title),
 		type: selectOf(page.properties["Opportunity Type"]) ?? "unknown",
 		priority: selectOf(page.properties.Priority) ?? "unknown",
-		confidence: numberOf(page.properties.Confidence),
+		confidence: selectOf(page.properties.Confidence) ?? "unknown",
+		status: selectOf(page.properties.Status) ?? "unknown",
 		source: selectOf(page.properties.Source) ?? "unknown",
 		owner: textOf(page.properties["Suggested Owner"]),
 		company: textOf(page.properties.Company),
@@ -144,11 +146,12 @@ export async function queryInbox(
 		recommendedMotion: textOf(page.properties["Recommended Motion"]),
 	}));
 
+	const CONF_RANK: Record<string, number> = { high: 3, medium: 2, low: 1 };
 	rows.sort((a, b) => {
 		const pa = PRIORITY_RANK[(a.priority as Priority) ?? "low"] ?? 0;
 		const pb = PRIORITY_RANK[(b.priority as Priority) ?? "low"] ?? 0;
 		if (pa !== pb) return pb - pa;
-		return (b.confidence ?? 0) - (a.confidence ?? 0);
+		return (CONF_RANK[b.confidence] ?? 0) - (CONF_RANK[a.confidence] ?? 0);
 	});
 
 	return rows;

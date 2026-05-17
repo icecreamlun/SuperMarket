@@ -23,6 +23,12 @@ function richText(text: string) {
 	return [{ type: "text" as const, text: { content: text.slice(0, 2000) } }];
 }
 
+function bucketConfidence(score: number): "high" | "medium" | "low" {
+	if (score >= 80) return "high";
+	if (score >= 50) return "medium";
+	return "low";
+}
+
 function heading(text: string) {
 	return {
 		object: "block" as const,
@@ -78,7 +84,7 @@ export async function writeInboundToNotion(
 		Source: { select: { name: event.source } },
 		"Opportunity Type": { select: { name: triage.type } },
 		Priority: { select: { name: triage.priority } },
-		Confidence: { number: triage.confidence },
+		Confidence: { select: { name: bucketConfidence(triage.confidence) } },
 		Status: {
 			select: { name: triage.priority === "low" ? "review" : "new" },
 		},
@@ -96,11 +102,6 @@ export async function writeInboundToNotion(
 		properties["GitHub Username"] = {
 			rich_text: richText(event.contact.handle),
 		};
-	if (enrichment?.inferredTechStack?.length) {
-		properties["Inferred Tech Stack"] = {
-			multi_select: enrichment.inferredTechStack.map((name) => ({ name })),
-		};
-	}
 
 	const children = buildWorkspaceBlocks(event, triage, enrichment);
 
