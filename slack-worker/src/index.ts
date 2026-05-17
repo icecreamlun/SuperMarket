@@ -151,16 +151,6 @@ const SOURCE_TO_EMOJI: Record<string, string> = {
 	"github-fork": "💻",
 };
 
-const SOURCE_TO_CHANNEL: Record<string, string> = {
-	"slack-command": process.env.CHANNEL_SLACK_ID ?? "",
-	"slack-dm": process.env.CHANNEL_SLACK_ID ?? "",
-	gmail: process.env.CHANNEL_GMAIL_ID ?? "",
-	"x-brand": process.env.CHANNEL_X_ID ?? "",
-	"github-star": process.env.CHANNEL_GITHUB_ID ?? "",
-	"github-issue": process.env.CHANNEL_GITHUB_ID ?? "",
-	"github-fork": process.env.CHANNEL_GITHUB_ID ?? "",
-};
-
 const RECOMMENDED_MOTION: Record<OpportunityType, string> = {
 	"enterprise-demo": "Schedule discovery call with AE within 24h, share enterprise deck",
 	partnership: "Loop in Partnerships, request co-marketing intro and joint roadmap review",
@@ -219,7 +209,6 @@ worker.webhook("onSlackCommand", {
 			const title = buildTitle(opportunityType, entry.text, company);
 			const contactDisplay = entry.reporterName || "(unknown)";
 
-			const channelId = SOURCE_TO_CHANNEL[entry.source];
 			const properties: Record<string, unknown> = {
 				Title: {
 					title: [{ text: { content: title } }],
@@ -247,10 +236,6 @@ worker.webhook("onSlackCommand", {
 					rich_text: [{ text: { content: entry.text.slice(0, 2000) } }],
 				},
 			};
-			if (channelId) {
-				properties.Channel = { relation: [{ id: channelId }] };
-			}
-
 			const emoji = SOURCE_TO_EMOJI[entry.source];
 			const page = await notion.pages.create({
 				parent: { database_id: databaseId },
