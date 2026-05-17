@@ -141,16 +141,6 @@ const SUGGESTED_OWNER: Record<OpportunityType, string> = {
 	unclear: "Triage Queue",
 };
 
-const SOURCE_TO_AREA: Record<string, string> = {
-	"slack-command": process.env.AREA_SLACK_ID ?? "",
-	"slack-dm": process.env.AREA_SLACK_ID ?? "",
-	gmail: process.env.AREA_GMAIL_ID ?? "",
-	"x-brand": process.env.AREA_X_ID ?? "",
-	"github-star": process.env.AREA_GITHUB_ID ?? "",
-	"github-issue": process.env.AREA_GITHUB_ID ?? "",
-	"github-fork": process.env.AREA_GITHUB_ID ?? "",
-};
-
 const RECOMMENDED_MOTION: Record<OpportunityType, string> = {
 	"enterprise-demo": "Schedule discovery call with AE within 24h, share enterprise deck",
 	partnership: "Loop in Partnerships, request co-marketing intro and joint roadmap review",
@@ -209,7 +199,6 @@ worker.webhook("onSlackCommand", {
 			const title = buildTitle(opportunityType, entry.text, company);
 			const contactDisplay = entry.reporterName || "(unknown)";
 
-			const areaId = SOURCE_TO_AREA[entry.source];
 			const properties: Record<string, unknown> = {
 				Title: {
 					title: [{ text: { content: title } }],
@@ -237,10 +226,6 @@ worker.webhook("onSlackCommand", {
 					rich_text: [{ text: { content: entry.text.slice(0, 2000) } }],
 				},
 			};
-			if (areaId) {
-				properties["Source Channel"] = { relation: [{ id: areaId }] };
-			}
-
 			const page = await notion.pages.create({
 				parent: { database_id: databaseId },
 				properties: properties as never,
