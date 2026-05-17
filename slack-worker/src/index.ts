@@ -141,6 +141,16 @@ const SUGGESTED_OWNER: Record<OpportunityType, string> = {
 	unclear: "Triage Queue",
 };
 
+const SOURCE_TO_EMOJI: Record<string, string> = {
+	"slack-command": "💬",
+	"slack-dm": "💬",
+	gmail: "📧",
+	"x-brand": "🐦",
+	"github-star": "💻",
+	"github-issue": "💻",
+	"github-fork": "💻",
+};
+
 const SOURCE_TO_CHANNEL: Record<string, string> = {
 	"slack-command": process.env.CHANNEL_SLACK_ID ?? "",
 	"slack-dm": process.env.CHANNEL_SLACK_ID ?? "",
@@ -241,8 +251,10 @@ worker.webhook("onSlackCommand", {
 				properties.Channel = { relation: [{ id: channelId }] };
 			}
 
+			const emoji = SOURCE_TO_EMOJI[entry.source];
 			const page = await notion.pages.create({
 				parent: { database_id: databaseId },
+				icon: emoji ? { type: "emoji", emoji } : undefined,
 				properties: properties as never,
 			});
 
