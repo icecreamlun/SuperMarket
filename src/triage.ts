@@ -15,7 +15,17 @@ const TRIAGE_TOOL = {
 		properties: {
 			type: {
 				type: "string",
-				enum: ["partnership", "enterprise-demo", "dev-user", "unclear"],
+				enum: [
+					"partnership",
+					"enterprise-demo",
+					"dev-user",
+					"lead-signal",
+					"community-buzz",
+					"competitive-intel",
+					"complaint",
+					"noise",
+					"unclear",
+				],
 			},
 			devUserSubtype: {
 				type: "string",
@@ -84,22 +94,33 @@ const TRIAGE_TOOL = {
 	},
 };
 
-const SYSTEM_PROMPT = `You are the triage layer of an inbound opportunity sidekick for a dev-tool startup's GTM team.
+const SYSTEM_PROMPT = `You are the triage layer of an opportunity sidekick for a dev-tool startup's GTM team. Inputs come from two surfaces:
+  - INBOX (reactive): someone is trying to reach us — GitHub issue/star/fork, Slack DM, forwarded email
+  - RADAR (proactive): ambient signals we scraped from X/Twitter
 
-Classify every inbound into exactly one type:
+Pick the SINGLE best type. Choose RADAR types only when source starts with "x-" (x-mention, x-brand, x-self). Otherwise prefer INBOX types.
+
+INBOX types:
 - partnership: integrations, co-marketing, ecosystem asks
 - enterprise-demo: clear buying signal — demo / pricing / rollout / evaluation
-- dev-user: signal from an individual developer using the product (esp. GitHub events). Subtype: eval-signal (star + enterprise account), feature-interest (feature request), bug-feedback (bug issue), deep-eval (fork)
+- dev-user: GitHub-style signal from an individual developer. Subtype: eval-signal (star + enterprise account), feature-interest (feature request issue), bug-feedback (bug issue), deep-eval (fork)
 - unclear: missing information or ambiguous intent
 
+RADAR types (X only):
+- lead-signal: public expression of evaluation/buying intent we could act on ("anyone tried X?", "looking for an alternative to Y", "need a tool that does Z"). High value — these can be promoted to INBOX.
+- community-buzz: positive mention, advocacy, fan post about a brand we monitor
+- competitive-intel: chatter about competitors or adjacent products that affects our positioning
+- complaint: negative mention worth knowing (about us or a competitor we could win from)
+- noise: irrelevant, off-topic, joke, or false-positive keyword match (e.g. "minimax algorithm" when monitoring "MiniMax AI brand"). Score noise honestly — most random tweets are noise.
+
 Priority guide:
-- high: clear buying/partnership intent, strong company signal (work email / enterprise account), urgent wording, or a GitHub stargazer at a known enterprise
-- medium: plausible but information is partial; active developer on personal account; community-channel high-quality question
-- low: vague/generic, small or bot-like account, off-topic
+- high: clear buying/partnership intent, enterprise-affiliated author, large following (>10k) with relevant context, lead-signal explicitly asking for what we sell
+- medium: plausible but partial info; mid-following developer; positive community buzz from credible account
+- low: vague, small account, off-topic; classify most X chatter low unless you see a real signal
 
 Calibrate confidence honestly. If signals are thin, say so via missingInfo.
-Pick suggestedOwner from: BizOps, Sales, DevRel, Founder, Review queue.
-The draftResponse must be short, warm, specific to what they said. Never invent facts.
+Pick suggestedOwner from: BizOps, Sales, DevRel, Founder, Review queue, None (for noise).
+The draftResponse must be short, warm, specific to what they said. For RADAR items, draftResponse can be a 1-line @-reply suggestion or empty for noise. Never invent facts.
 
 Call the report_triage tool exactly once. Do not return prose.`;
 

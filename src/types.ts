@@ -4,7 +4,31 @@ export type InboundSource =
 	| "github-fork"
 	| "slack-dm"
 	| "slack-command"
-	| "gmail";
+	| "gmail"
+	| "x-mention"
+	| "x-brand"
+	| "x-self";
+
+export interface XTweet {
+	id: string;
+	url: string;
+	text: string;
+	createdAt: string;
+	author: {
+		userName: string;
+		name?: string;
+		followers?: number;
+		verified?: boolean;
+		isBlueVerified?: boolean;
+		profilePicture?: string;
+		description?: string;
+	};
+	replyCount?: number;
+	retweetCount?: number;
+	likeCount?: number;
+	quoteCount?: number;
+	matchedQuery: string;
+}
 
 export interface InboundEvent {
 	deliveryId: string;
@@ -45,6 +69,11 @@ export type OpportunityType =
 	| "partnership"
 	| "enterprise-demo"
 	| "dev-user"
+	| "lead-signal"
+	| "community-buzz"
+	| "competitive-intel"
+	| "complaint"
+	| "noise"
 	| "unclear";
 
 export type Priority = "high" | "medium" | "low";
